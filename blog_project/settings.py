@@ -128,7 +128,7 @@ else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Media files configuration
-if os.environ.get('CLOUDINARY_URL'):
+if os.environ.get('cloudinary://<your_api_key>:<your_api_secret>@dthd9frhm'):
     # Use Cloudinary for media files
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     
