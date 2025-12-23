@@ -115,36 +115,40 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# ====== STATIC FILES CONFIGURATION ======
+# ====== STATIC & MEDIA FILES CONFIGURATION (Django 5+) ======
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'blog/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# For production, collect static files
+# Define Storages (New Django 5 Way)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# Production: Use WhiteNoise for Static Files
 if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-else:
-    # For development, just use the default
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    STORAGES["staticfiles"]["BACKEND"] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-import sys
-print("DEBUG: Checking Environment Variables...", file=sys.stderr)
-cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
-print(f"DEBUG: CLOUDINARY_CLOUD_NAME value is: '{cloud_name}'", file=sys.stderr)
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
 
-# Media files configuration
-if os.environ.get('CLOUDINARY_CLOUD_NAME'):
-    # Use Cloudinary for media files
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
-    # Cloudinary configuration
+if CLOUDINARY_CLOUD_NAME:
+    # Configure Cloudinary credentials
     CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
         'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
         'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
     }
     
-    MEDIA_URL = '/media/'
+    # TELL DJANGO TO USE CLOUDINARY FOR UPLOADS
+    STORAGES["default"]["BACKEND"] = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    
+    MEDIA_URL = '/media/' 
 else:
     # Local development fallback
     MEDIA_URL = '/media/'
