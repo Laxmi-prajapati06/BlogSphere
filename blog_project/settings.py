@@ -127,6 +127,11 @@ else:
     # For development, just use the default
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+import sys
+print("DEBUG: Checking Environment Variables...", file=sys.stderr)
+cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
+print(f"DEBUG: CLOUDINARY_CLOUD_NAME value is: '{cloud_name}'", file=sys.stderr)
+
 # Media files configuration
 if os.environ.get('CLOUDINARY_CLOUD_NAME'):
     # Use Cloudinary for media files
